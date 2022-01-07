@@ -1,0 +1,12 @@
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/Channel.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/UserChannel.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entityManager/ChannelManager.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/Group.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entityManager/UserManager.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/UserChannelUser.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/emmbed/UserChannelUserKey.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/User.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entityManager/UserChannelManager.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/Launcher.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entityManager/MySessionFactory.java
+/mnt/sda1/Workspace/JavaDesktop/ChatAppServer/src/main/java/mg/rinelfi/chat/entity/UserGroup.java

@@ -1,29 +1,43 @@
 package mg.rinelfi.chat.entity;
 
-import org.hibernate.annotations.GenericGenerator;
+import mg.rinelfi.chat.entity.relation.UserChannelUser;
+import mg.rinelfi.chat.entity.relation.UserGroup;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Entity
-@Table(name = "user")
-public class User {
+@Table(name = "u_user")
+public class User implements Serializable {
+    
     @Id
-    @GenericGenerator(name = "increment", strategy = "increment")
-    @GeneratedValue(generator = "increment")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "u_id")
     private long id;
-    @Column
+    @Column(name = "u_firstname")
     private String firstname;
-    @Column
+    @Column(name = "u_lastname")
     private String lastname;
-    @Column
+    @Column(unique = true, name = "u_username")
     private String username;
-    @Column
+    @Column(name = "u_password")
     private String password;
-    @Column
+    @Column(name = "u_online")
     private boolean online;
-    @Column
+    @Column(name = "u_banned")
     private boolean banned;
-    public User() {}
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<UserChannelUser> userChannelLinks;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<UserGroup> userGroupLinks;
+    
+    public User() {
+        this.userChannelLinks = new HashSet<>();
+        this.userGroupLinks = new HashSet<>();
+    }
     
     public long getId() {
         return id;
@@ -79,5 +93,21 @@ public class User {
     
     public void setBanned(boolean banned) {
         this.banned = banned;
+    }
+    
+    public Set<UserChannelUser> getUserChannelLinks() {
+        return userChannelLinks;
+    }
+    
+    public void setUserChannelLinks(Set<UserChannelUser> channels) {
+        this.userChannelLinks = channels;
+    }
+    
+    public Set<UserGroup> getUserGroupLinks() {
+        return userGroupLinks;
+    }
+    
+    public void setUserGroupLinks(Set<UserGroup> groups) {
+        this.userGroupLinks = groups;
     }
 }

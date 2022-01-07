@@ -1,0 +1,12 @@
+mg/rinelfi/chat/entity/Group.class
+mg/rinelfi/chat/Launcher.class
+mg/rinelfi/chat/entityManager/UserManager.class
+mg/rinelfi/chat/entity/UserChannel.class
+mg/rinelfi/chat/entity/emmbed/UserChannelUserKey.class
+mg/rinelfi/chat/entity/User.class
+mg/rinelfi/chat/entityManager/UserChannelManager.class
+mg/rinelfi/chat/entityManager/ChannelManager.class
+mg/rinelfi/chat/entity/Channel.class
+mg/rinelfi/chat/entity/UserChannelUser.class
+mg/rinelfi/chat/entityManager/MySessionFactory.class
+mg/rinelfi/chat/entity/UserGroup.class

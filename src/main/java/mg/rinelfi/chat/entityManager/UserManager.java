@@ -74,4 +74,14 @@ public class UserManager {
         session.close();
         return output;
     }
+    
+    public List<User> select(String name) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Session session = sessionFactory.openSession();
+        TypedQuery<User> query = session.createQuery("select u from User u where upper(u.username) like :name or upper(u.firstname) like :name or upper(u.lastname) like :name", User.class);
+        query.setParameter("name", "%" + name.toUpperCase() + "%");
+        List<User> output = query.getResultList();
+        session.close();
+        return output;
+    }
 }

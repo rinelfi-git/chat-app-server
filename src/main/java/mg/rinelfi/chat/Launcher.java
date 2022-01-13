@@ -171,6 +171,17 @@ public class Launcher {
                     jsonUserArray.put(jsonUserObject);
                 }
                 handler.send(new JSONObject().put("users", jsonUserArray).toString());
+            }).on("user:contact:search", (json, handler) -> {
+                Console.log(Launcher.class,"paremeter : " + json.getString("name"));
+                List<User> dbUsers = userManager.select(json.getString("name"));
+                JSONArray jsonUsers =new JSONArray();
+                for(User dbUser: dbUsers) {
+                    JSONObject jsonUser = new JSONObject();
+                    jsonUser.put("firstname", dbUser.getFirstname());
+                    jsonUser.put("lastname", dbUser.getLastname());
+                    jsonUsers.put(jsonUser);
+                }
+                handler.send(new JSONObject().put("users", jsonUsers).toString());
             });
         } catch (IOException e) {
         }

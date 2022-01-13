@@ -14,16 +14,16 @@ import javax.persistence.Entity;
  */
 @Entity(name = "MessageText")
 public class MessageText extends Message implements Serializable {
-    
-    @Column(name = "tm_content")
+
+    @Column(name = "tm_content", length = 65536)
     private String content;
-    
+
     public String getContent() {
         return content;
     }
-    
+
     public void setContent(String content) {
         this.content = content;
     }
-    
+
 }

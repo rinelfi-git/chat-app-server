@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "g_group")
+@Entity(name = "Group")
 public class Group extends Channel implements Serializable {
 
     @Column(name = "g_name")
@@ -15,7 +15,7 @@ public class Group extends Channel implements Serializable {
     @OneToOne()
     @JoinColumn
     private User administrator;
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private Set<UserGroup> userGroupLinks;
 
     public Group() {

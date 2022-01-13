@@ -53,4 +53,16 @@ public class ChannelManager {
             transaction.rollback();
         session.close();
     }
+
+    public Channel get(String field, Object value) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Channel output;
+        try (Session session = sessionFactory.openSession()) {
+            TypedQuery<Channel> query = session.createQuery(String.format("from Channel chan where chan.%s = :%s", field, field), Channel.class);
+            query.setParameter(field, value);
+            List<Channel> result = query.getResultList();
+            output = result.size() > 0 ? query.getSingleResult() : null;
+        }
+        return output;
+    }
 }

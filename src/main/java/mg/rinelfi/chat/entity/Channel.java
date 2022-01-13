@@ -1,11 +1,13 @@
 package mg.rinelfi.chat.entity;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.*;
 
 
-@Entity
+@Entity(name = "Channel")
 @Table(name = "c_channel")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Channel implements Serializable {
@@ -14,7 +16,12 @@ public class Channel implements Serializable {
     @Column(name = "c_id")
 	private long id;
     
-    public Channel() {}
+    @OneToMany(mappedBy = "channel")
+    private Set<Message> messages;
+    
+    public Channel() {
+        this.messages = new HashSet<>();
+    }
 
     public long getId() {
         return id;

@@ -1,127 +1,109 @@
 package mg.rinelfi.chat;
 
-import mg.rinelfi.chat.entity.Channel;
-import mg.rinelfi.chat.entity.Group;
-import mg.rinelfi.chat.entity.User;
-import mg.rinelfi.chat.entity.UserChannel;
+import mg.rinelfi.chat.entity.*;
 import mg.rinelfi.chat.entity.relation.UserChannelUser;
-import mg.rinelfi.chat.entity.relation.UserGroup;
 import mg.rinelfi.chat.entityManager.*;
+import mg.rinelfi.console.Console;
 import mg.rinelfi.jiosocket.server.PseudoWebServer;
 import mg.rinelfi.jiosocket.server.SocketServer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 public class Launcher {
-    
+
     public static void main(String[] args) {
-        
+
         UserManager userManager = new UserManager(MySessionFactory.getInstance());
         ChannelManager channelManager = new ChannelManager(MySessionFactory.getInstance());
-        UserChannelManager userChannelUserManager = new UserChannelManager(MySessionFactory.getInstance());
-        UserGroupManager userGroupManager = new UserGroupManager(MySessionFactory.getInstance());
-        
-        User user1 = new User();
-        User user2 = new User();
-        user1.setUsername("Rijaniaina");
-        user2.setUsername("Rinelfi");
-        userManager.create(user1);
-        userManager.create(user2);
-        
-        UserChannel channel = new UserChannel();
-        channelManager.create(channel);
-        
-        UserChannelUser userChannel1 = new UserChannelUser();
-        userChannel1.setUser(user1);
-        userChannel1.setChannel(channel);
-        userChannel1.setUsername(user1.getUsername());
-        
-        user1.getUserChannelLinks().add(userChannel1);
-        channel.getUserChannelLinks().add(userChannel1);
-        
-        userChannelUserManager.create(userChannel1);
-        
-        UserChannelUser userChannel2 = new UserChannelUser();
-        userChannel2.setUser(user2);
-        userChannel2.setChannel(channel);
-        userChannel2.setUsername(user2.getUsername());
-        
-        user2.getUserChannelLinks().add(userChannel2);
-        channel.getUserChannelLinks().add(userChannel2);
-        
-        userChannelUserManager.create(userChannel2);
-        
-        List<Channel> fromDatabase = channelManager.select();
-        Set<UserChannelUser> sets = ((UserChannel) fromDatabase.get(0)).getUserChannelLinks();
-        System.out.println();
-        for(UserChannelUser set : sets) {
-            System.out.println(set.getUser().getUsername() + " at channel " + set.getChannel().getId());
-        }
-        System.out.println();
-        Group groupe = new Group();
-        groupe.setAdministrator(user1);
-        channelManager.create(groupe);
-        
-        UserGroup userGroup1 = new UserGroup();
-        userGroup1.setGroup(groupe);
-        userGroup1.setUser(user1);
-        userGroup1.setName(user1.getUsername());
-        groupe.getUserGroupLinks().add(userGroup1);
-        user1.getUserGroupLinks().add(userGroup1);
-        userGroupManager.create(userGroup1);
-        
-        userGroup1 = new UserGroup();
-        userGroup1.setGroup(groupe);
-        userGroup1.setUser(user2);
-        userGroup1.setName(user2.getUsername());
-        groupe.getUserGroupLinks().add(userGroup1);
-        user2.getUserGroupLinks().add(userGroup1);
-        userGroupManager.create(userGroup1);
-        
-        fromDatabase = channelManager.select();
-        System.out.println(fromDatabase.size());
-        
-        Group group = (Group) fromDatabase.get(1);
-        System.out.println("administrator is " + group.getAdministrator().getUsername());
-        Set<UserGroup> links = group.getUserGroupLinks();
-        for(UserGroup link: links) {
-            System.out.println("member is : " + link.getUser().getUsername() + ". as => " + link.getName());
-        }
-        
-        int port = 2046;
+        UserChannelManager userChannelManager = new UserChannelManager(MySessionFactory.getInstance());
+        MessageManager messageManager = new MessageManager(MySessionFactory.getInstance());
+
+        User rinelfi = new User();
+        rinelfi.setFirstname("Rijaniaina");
+        rinelfi.setLastname("Elie Fidèle");
+        rinelfi.setUsername("rinelfi");
+        rinelfi.setPassword(BCrypt.hashpw("c'est facile", BCrypt.gensalt(12)));
+
+        User foller = new User();
+        foller.setFirstname("Ronie");
+        foller.setLastname("Foller");
+        foller.setUsername("foll");
+        foller.setPassword(BCrypt.hashpw("foll", BCrypt.gensalt(12)));
+
+        userManager.create(rinelfi);
+        userManager.create(foller);
+
+        UserChannel channel1 = new UserChannel();
+        channelManager.create(channel1);
+
+        UserChannelUser channelLink = new UserChannelUser();
+        channelLink.setChannel(channel1);
+        channelLink.setUser(rinelfi);
+        channelLink.setUsername(rinelfi.getUsername());
+        channel1.getUserChannelLinks().add(channelLink);
+        rinelfi.getUserChannelLinks().add(channelLink);
+        userChannelManager.create(channelLink);
+
+        channelLink = new UserChannelUser();
+        channelLink.setChannel(channel1);
+        channelLink.setUser(foller);
+        channelLink.setUsername(foller.getUsername());
+        channel1.getUserChannelLinks().add(channelLink);
+        foller.getUserChannelLinks().add(channelLink);
+        userChannelManager.create(channelLink);
+
+        int socketPort = 2046;
         try {
-            SocketServer server = new SocketServer(port);
+            SocketServer server = new SocketServer(socketPort);
             server.start();
-            System.out.println("Lancement du serveur\nEcoute sur le port : " + port);
+            System.out.println("\n\nLancement du serveur\nEcoute sur le port : " + socketPort);
+            System.out.println("\n");
             server.on("message", data -> {
-                String target = data.getString("target");
-                String sender = data.getString("sender");
+                JSONObject request = new JSONObject(data);
+                System.out.println("message : " + data.toString());
+                String target = request.getString("target");
+                String sender = request.getString("sender");
                 server.emit("message", data.toString(), target);
-                server.emit("sent", data.toString(), sender);
             }).on("received", data -> {
-                String target = data.getString("target");
+                JSONObject request = new JSONObject(data);
+                System.out.println("received : " + data.toString());
+                String target = request.getString("target");
                 server.emit("received", data.toString(), target);
             }).on("seen", data -> {
-                String target = data.getString("target");
+                JSONObject request = new JSONObject(data);
+                System.out.println("seen : " + data.toString());
+                String target = request.getString("target");
                 server.emit("seen", data.toString(), target);
             }).on("typing on", data -> {
-                String target = data.getString("target");
+                JSONObject request = new JSONObject(data);
+                System.out.println("typing on : " + data.toString());
+                String target = request.getString("target");
                 server.emit("typing on", data.toString(), target);
             }).on("typing off", data -> {
-                String target = data.getString("target");
+                JSONObject request = new JSONObject(data);
+                System.out.println("typing off : " + data.toString());
+                String target = request.getString("target");
                 server.emit("typing off", data.toString(), target);
+            }).on("token connect message", data -> {
+                System.out.println("token connect message : " + data.toString());
+                server.emit("token connect message", data);
+            }).on("token connect reply", data -> {
+                JSONObject request = new JSONObject(data);
+                String target = request.getString("target");
+                System.out.println("token connect message : " + data.toString());
+                server.emit("token connect reply", data, target);
             });
         } catch (IOException e) {
-            e.printStackTrace();
         }
-        
-        port = 2045;
+
+        int webServerPort = 2045;
         try {
-            PseudoWebServer webServer = new PseudoWebServer(port);
+            PseudoWebServer webServer = new PseudoWebServer(webServerPort);
             webServer.start();
             webServer.on("registration", (json, handler) -> {
                 User user = new User();
@@ -134,13 +116,63 @@ public class Launcher {
             }).on("connection", (json, handler) -> {
                 JSONObject response = new JSONObject();
                 String password = userManager.getPassword(json.getString("username"));
-                if (password != null && BCrypt.checkpw(json.getString("password"), password))  response.put("match", true);
-                else response.put("match", false);
+                if (password != null && BCrypt.checkpw(json.getString("password"), password)) {
+                    response.put("match", true);
+                    response.put("user", new JSONObject(userManager.get("username", json.getString("username"))));
+                } else
+                    response.put("match", false);
                 handler.send(response.toString());
+            }).on("channels", (json, handler) -> {
+                Console.log(Launcher.class, "channel synchrone");
+                List<Channel> objectChannels = channelManager.select();
+                JSONArray jsonChannels = new JSONArray();
+                for (Channel channel : objectChannels) {
+                    if (channel instanceof UserChannel) {
+                        UserChannel userChannel = (UserChannel) channel;
+                        userChannel.setUserChannelLinks(userChannelManager.getUsersFromChannel(userChannel));
+
+                        jsonChannels.put(new JSONObject().put("type", "user_channel").put("channel", new JSONObject(userChannel)));
+                    }
+                }
+                handler.send(new JSONObject().put("channels", jsonChannels).toString());
+            }).on("text message", (json, handler) -> {
+                User user = userManager.get("username", json.getString("username"));
+                Channel channel = channelManager.get("id", json.getLong("channel"));
+                MessageText message = new MessageText();
+                message.setContent(json.getString("message"));
+                message.setUser(user);
+                message.setChannel(channel);
+                message.setDate(new Date());
+                message.setStatus(0);
+                messageManager.create(message);
+                handler.send(new JSONObject().put("sent", true).toString());
+            }).on("message list", (json, handler) -> {
+                Channel channel = channelManager.get("id", json.getLong("channel"));
+                List<Message> dbMessages = messageManager.select(channel);
+                JSONArray jsonUserArray = new JSONArray();
+                for (Message message : dbMessages) {
+                    JSONObject jsonUserObject = new JSONObject();
+                    jsonUserObject.put("type", message instanceof MessageText ? "text" : "media");
+                    jsonUserObject.put("user", message.getUser().getUsername());
+                    jsonUserObject.put("date", message.getDate());
+                    jsonUserObject.put("content", ((MessageText) message).getContent());
+                    jsonUserArray.put(jsonUserObject);
+                }
+                handler.send(new JSONObject().put("messages", jsonUserArray).toString());
+            }).on("users", (json, handler) -> {
+                Console.log(Launcher.class, "user synchrone");
+                List<User> userObjects = userManager.select();
+                JSONArray jsonUserArray = new JSONArray();
+                for (User user : userObjects) {
+                    JSONObject jsonUserObject = new JSONObject();
+                    jsonUserObject.put("username", user.getUsername());
+                    jsonUserObject.put("firstname", user.getFirstname());
+                    jsonUserObject.put("lastname", user.getLastname());
+                    jsonUserArray.put(jsonUserObject);
+                }
+                handler.send(new JSONObject().put("users", jsonUserArray).toString());
             });
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 }

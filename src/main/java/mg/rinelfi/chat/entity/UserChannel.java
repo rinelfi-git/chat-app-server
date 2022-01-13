@@ -8,10 +8,10 @@ import java.util.Set;
 
 import javax.persistence.*;
 
-@Entity(name = "uc_user_channel")
+@Entity(name = "UserChannel")
 public class UserChannel extends Channel implements Serializable {
 
-    @OneToMany(mappedBy = "channel", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "channel", fetch = FetchType.LAZY)
     private Set<UserChannelUser> userChannelLinks;
 
     public UserChannel() {

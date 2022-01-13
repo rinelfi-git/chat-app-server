@@ -1,5 +1,6 @@
 package mg.rinelfi.chat.entity;
 
+import mg.rinelfi.chat.entity.relation.MessageReact;
 import mg.rinelfi.chat.entity.relation.UserChannelUser;
 import mg.rinelfi.chat.entity.relation.UserGroup;
 
@@ -9,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Entity
+@Entity(name = "User")
 @Table(name = "u_user")
 public class User implements Serializable {
     
@@ -29,14 +30,20 @@ public class User implements Serializable {
     private boolean online;
     @Column(name = "u_banned")
     private boolean banned;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<UserChannelUser> userChannelLinks;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<UserGroup> userGroupLinks;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<MessageReact> messageReactLinks;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<Message> messages;
     
     public User() {
         this.userChannelLinks = new HashSet<>();
         this.userGroupLinks = new HashSet<>();
+        this.messageReactLinks = new HashSet<>();
+        this.messages = new HashSet<>();
     }
     
     public long getId() {
@@ -109,5 +116,13 @@ public class User implements Serializable {
     
     public void setUserGroupLinks(Set<UserGroup> groups) {
         this.userGroupLinks = groups;
+    }
+    
+    public Set<MessageReact> getMessageReactLinks() {
+        return messageReactLinks;
+    }
+    
+    public void setMessageReactLinks(Set<MessageReact> messageReactLinks) {
+        this.messageReactLinks = messageReactLinks;
     }
 }

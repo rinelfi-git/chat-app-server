@@ -11,13 +11,13 @@ import mg.rinelfi.chat.entity.Channel;
 import org.hibernate.Transaction;
 
 public class ChannelManager {
-
+    
     private final MySessionFactory factory;
-
+    
     public ChannelManager(MySessionFactory instance) {
         this.factory = instance;
     }
-
+    
     public List<Channel> select() {
         SessionFactory sessionFactory = this.factory.getSession();
         Session session = sessionFactory.openSession();
@@ -26,7 +26,7 @@ public class ChannelManager {
         session.close();
         return select;
     }
-
+    
     public long create(Channel channel) {
         SessionFactory sessionFactory = this.factory.getSession();
         Session session = sessionFactory.openSession();
@@ -41,7 +41,7 @@ public class ChannelManager {
         session.close();
         return id;
     }
-
+    
     public void update(Channel channel) {
         SessionFactory sessionFactory = this.factory.getSession();
         Session session = sessionFactory.openSession();
@@ -53,7 +53,7 @@ public class ChannelManager {
             transaction.rollback();
         session.close();
     }
-
+    
     public Channel get(String field, Object value) {
         SessionFactory sessionFactory = this.factory.getSession();
         Channel output;
@@ -64,5 +64,15 @@ public class ChannelManager {
             output = result.size() > 0 ? query.getSingleResult() : null;
         }
         return output;
+    }
+    
+    public List<Channel> selectFromUser(long user) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Session session = sessionFactory.openSession();
+        TypedQuery<Channel> query = session.createQuery("select c from Channel c left join UserGroup ug on ug.group.id=c.id left join UserChannelUser ucu on ucu.channel.id=c.id where ucu.user.id = :user or ug.user.id = :user", Channel.class);
+        query.setParameter("user", user);
+        List<Channel> select = query.getResultList();
+        session.close();
+        return select;
     }
 }

@@ -52,7 +52,7 @@ public class UserManager {
             TypedQuery<User> query = session.createQuery(String.format("from User user where user.%s = :%s", field, field), User.class);
             query.setParameter(field, value);
             List<User> result = query.getResultList();
-            output = result.size() > 0 ? query.getSingleResult() : null;
+            output = result.size() > 0 ? result.get(0) : null;
         }
         return output;
     }

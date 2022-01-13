@@ -50,4 +50,15 @@ public class MessageManager {
         session.close();
         return output;
     }
+
+    public String getLastMessageFromChannel(Channel channel) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Session session = sessionFactory.openSession();
+        TypedQuery<String> query = session.createQuery("select mt.content from MessageText mt where mt.channel=:channel order by mt.date desc", String.class);
+        query.setMaxResults(1);
+        query.setParameter("channel", channel);
+        List<String> output = query.getResultList();
+        session.close();
+        return output.size() > 0 ? output.get(0) : "";
+    }
 }

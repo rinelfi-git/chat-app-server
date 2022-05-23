@@ -28,7 +28,7 @@ public class Launcher {
 
         User rinelfi = new User();
         rinelfi.setFirstname("Rijaniaina");
-        rinelfi.setLastname("Elie FidÃ¨le");
+        rinelfi.setLastname("Elie Fidèle");
         rinelfi.setUsername("rinelfi");
         rinelfi.setPassword(BCrypt.hashpw("c'est facile", BCrypt.gensalt(12)));
 
@@ -93,6 +93,10 @@ public class Launcher {
                 JSONObject request = new JSONObject(data);
                 String target = request.getString("target");
                 server.emit("token connect reply", data, target);
+            }).on("pseudo:update", data -> {
+                JSONObject request = new JSONObject(data);
+                String target = request.getString("target");
+                server.emit("pseudo:update", data, target);
             });
         } catch (IOException e) {
         }
@@ -146,11 +150,11 @@ public class Launcher {
                 message.setChannel(channel);
                 message.setDate(new Date());
                 message.setStatus(0);
-                messageManager.create(message);
-                handler.send(new JSONObject().put("sent", true).toString());
-            }).on("message list", (json, handler) -> {
+                long id = messageManager.create(message);
+                handler.send(new JSONObject().put("sent", id > 0).toString());
+            }).on("message:last", (json, handler) -> {
                 Channel channel = channelManager.get("id", json.getLong("channel"));
-                List<Message> dbMessages = messageManager.select(channel);
+                List<Message> dbMessages = messageManager.selectPosts(channel);
                 JSONArray jsonUserArray = new JSONArray();
                 for (Message message : dbMessages) {
                     JSONObject jsonUserObject = new JSONObject();
@@ -198,6 +202,24 @@ public class Launcher {
                 link.setName(administrator.getFirstname() + " " + administrator.getLastname());
                 UserGroupKey key = userGroupManager.create(link);
                 handler.send(new JSONObject().put("success", key.getGroup() > 0).toString());
+            }).on("user:discussion:user", (json, handler) -> {
+                long channel = json.getLong("channel");
+                List<UserChannelUser> dbUsers = userChannelManager.getFromChannel(channel);
+                JSONObject response = new JSONObject();
+                JSONArray jsonUsers = new JSONArray();
+                for (UserChannelUser dbUser : dbUsers) {
+                    jsonUsers.put((new JSONObject())
+                            .put("id", dbUser.getUser().getId())
+                            .put("username", dbUser.getUser().getUsername())
+                            .put("nickname", dbUser.getUsername()));
+                }
+                response.put("users", jsonUsers);
+                handler.send(response.toString());
+            }).on("user:userchannel:pseudo", (json, handler) -> {
+                userChannelManager.updateNickname(json.getLong("channel"), json.getLong("user"), json.getString("nickname"));
+                JSONObject response = new JSONObject();
+                response.put("nickname", json.getString("nickname"));
+                handler.send(response.toString());
             });
         } catch (IOException e) {
         }

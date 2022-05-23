@@ -61,4 +61,15 @@ public class MessageManager {
         session.close();
         return output.size() > 0 ? output.get(0) : "";
     }
+
+    public List<Message> selectPosts(Channel channel) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Session session = sessionFactory.openSession();
+        TypedQuery<Message> query = session.createQuery("select m from Message m where m.channel=:channel order by m.date", Message.class);
+        query.setMaxResults(10);
+        query.setParameter("channel", channel);
+        List<Message> output = query.getResultList();
+        session.close();
+        return output;
+    }
 }

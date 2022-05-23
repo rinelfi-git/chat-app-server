@@ -9,6 +9,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import mg.rinelfi.chat.entity.User;
+import mg.rinelfi.chat.entity.relation.UserChannelUser;
 
 public class UserManager {
 

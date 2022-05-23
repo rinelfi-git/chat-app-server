@@ -6,11 +6,14 @@
 package mg.rinelfi.chat.entityManager;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.TypedQuery;
+import mg.rinelfi.chat.entity.User;
 import mg.rinelfi.chat.entity.UserChannel;
 import mg.rinelfi.chat.entity.relation.UserChannelUser;
 import mg.rinelfi.chat.entity.emmbed.UserChannelUserKey;
+import mg.rinelfi.chat.entity.relation.UserChannelUser;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -50,5 +53,31 @@ public class UserChannelManager {
         Set<UserChannelUser> result = new HashSet<>(query.getResultList());
         session.close();
         return result;
+    }
+
+    public void updateNickname(long channel, long user, String nickname) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Session session = sessionFactory.openSession();
+        UserChannelUser temp0 = session.createQuery("from UserChannelUser uc where uc.channel.id = :channel and uc.user.id=:user", UserChannelUser.class).setParameter("channel", channel).setParameter("user", user).setMaxResults(1).getSingleResult();
+        temp0.setUsername(nickname);
+        Transaction transaction = session.beginTransaction();
+        session.update(temp0);
+        if (transaction != null)
+            transaction.commit();
+        else
+            transaction.rollback();
+        session.close();
+    }
+    
+    
+
+    public List<UserChannelUser> getFromChannel(long channel) {
+        SessionFactory sessionFactory = this.factory.getSession();
+        Session session = sessionFactory.openSession();
+        TypedQuery<UserChannelUser> query = session.createQuery("select usu from UserChannelUser usu where usu.channel.id=:channel", UserChannelUser.class);
+        query.setParameter("channel", channel);
+        List<UserChannelUser> output = query.getResultList();
+        session.close();
+        return output;
     }
 }
